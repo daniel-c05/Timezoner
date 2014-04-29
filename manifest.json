@@ -7,5 +7,12 @@
       "scripts": ["background.js"]
     }
   },
+  "content_scripts": [
+    {
+      "matches": ["http://www.google.com/*"],
+      "css": ["resources/css/jquery-ui.css"],
+      "js": ["main.js", "resources/js/jquery-ui.js", "resources/js/jquery-1.10.2.js"]
+    }
+  ],
   "icons": { "16": "calculator-16.png", "128": "calculator-128.png" }
 }
