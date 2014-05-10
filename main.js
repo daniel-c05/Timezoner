@@ -211,6 +211,46 @@ var accentMap = {
     "ö": "o"
 };
 
+var PST_OFFSET = 7;
+var MST_OFFSET = 6;
+var CST_OFFSET = 5;
+var EST_OFFSET = 4;
+
+var pst_time = "";
+var mst_time = "";
+var cst_time = "";
+var est_time = "";
+
+var lastLocation = "";
+var nextIsOdd = false;
+
+function setTimezones () {
+
+  var date = new Date();
+  var now = date.getTime();
+  var offset = date.getTimezoneOffset() / 60;  
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+
+  var pst_time = (hours + (offset - PST_OFFSET)) + ':' + minutes + ' ' + ampm;
+  var mst_time = (hours + (offset - MST_OFFSET)) + ':' + minutes + ' ' + ampm;
+  var cst_time = (hours + (offset - CST_OFFSET)) + ':' + minutes + ' ' + ampm;
+  var est_time = (hours + (offset - EST_OFFSET)) + ':' + minutes + ' ' + ampm;
+
+  console.log(pst_time);
+
+  $("#pst").text(pst_time);
+  $("#mst").text(mst_time);
+  $("#cst").text(cst_time);
+  $("#est").text(est_time);
+
+}
+
 var normalize = function( term ) {
 	var ret = "";
 	for ( var i = 0; i < term.length; i++ ) {
@@ -219,13 +259,64 @@ var normalize = function( term ) {
 	return ret;
 };
 
-function getTimeFor (location) {
-	var now = new Date().getTime();
+function getTimeFor (location) {  
+
+	var now = new Date().getTime() / 1000;
 	var index = locations.indexOf(location);
+  
+  if (index == -1) {
+    return;
+  }
+
+  else if (location === lastLocation) {
+    return;
+  }
+
 	var latlong = latlongs[index];
-	console.log("Index: " + index);
 	var reqUrl = REQUEST_BASE_URL + "location=" + latlong + "&timestamp=" + now + "&sensor=false&key=" + API_KEY;
-	console.log(reqUrl);
+	var timezone = $.getJSON( reqUrl, function( data ) {
+    appendLocation(location, data.dstOffset, data.rawOffset);
+    lastLocation = location;
+  });
+}
+
+function getTimeForOffset (offset) {
+
+  var date = new Date();
+  var now = date.getTime();
+  var curOffset = date.getTimezoneOffset() / 60;  
+
+  console.log("Current Offset is: " + curOffset);
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+
+  var str_time = (hours + (curOffset + offset)) + ':' + minutes + ' ' + ampm;
+  return str_time;
+}
+
+function appendLocation (location, dstOffset, rawOffset) {
+
+  var time = new Date().getTime();
+  var offset = (rawOffset + dstOffset) / 3600;
+  var timezoneData = ''; 
+
+  if (nextIsOdd) {
+    timezoneData = '<div class="timezone odd"><h2>' + location + '</h2><div><span>' + getTimeForOffset(offset) + '</span> || (GMT ' + offset + ':00)</div></div>';
+    nextIsOdd = false;
+  }
+  else {
+    timezoneData = '<div class="timezone"><h2>' + location + '</h2><div><span>' + getTimeForOffset(offset) + '</span> || (GMT ' + offset + ':00)</div></div>';  
+    nextIsOdd = true;
+  }
+
+  console.log(timezoneData);
+
+  $(timezoneData).hide().prependTo('#content').fadeIn('slow');
 }
 
 $(function() {
@@ -244,5 +335,11 @@ $(function() {
   	var location = $("#searchbox").val();
   	getTimeFor(location);
   });
+
+  var online = navigator.onLine;
+
+
+  setTimezones();
+
 
 });
