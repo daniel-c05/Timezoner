@@ -242,12 +242,15 @@ function setTimezones () {
   var cst_time = (hours + (offset - CST_OFFSET)) + ':' + minutes + ' ' + ampm;
   var est_time = (hours + (offset - EST_OFFSET)) + ':' + minutes + ' ' + ampm;
 
-  console.log(pst_time);
-
   $("#pst").text(pst_time);
   $("#mst").text(mst_time);
   $("#cst").text(cst_time);
   $("#est").text(est_time);
+
+  setTimeout(function() {
+    setTimezones();
+    console.log("Timeout");
+  }, 10000);
 
 }
 
@@ -286,7 +289,6 @@ function getTimeForOffset (offset) {
   var now = date.getTime();
   var curOffset = date.getTimezoneOffset() / 60;  
 
-  console.log("Current Offset is: " + curOffset);
   var hours = date.getHours();
   var minutes = date.getMinutes();
   var ampm = hours >= 12 ? 'pm' : 'am';
@@ -306,20 +308,23 @@ function appendLocation (location, dstOffset, rawOffset) {
   var timezoneData = ''; 
 
   if (nextIsOdd) {
-    timezoneData = '<div class="timezone odd"><h2>' + location + '</h2><div><span>' + getTimeForOffset(offset) + '</span> || (GMT ' + offset + ':00)</div></div>';
+    timezoneData = '<li class="timezone odd"><h2>' + location + '</h2><div><span>' + getTimeForOffset(offset) + '</span> || (GMT ' + offset + ':00)</div></li>';
     nextIsOdd = false;
   }
   else {
-    timezoneData = '<div class="timezone"><h2>' + location + '</h2><div><span>' + getTimeForOffset(offset) + '</span> || (GMT ' + offset + ':00)</div></div>';  
+    timezoneData = '<li class="timezone"><h2>' + location + '</h2><div><span>' + getTimeForOffset(offset) + '</span> || (GMT ' + offset + ':00)</div></li>';  
     nextIsOdd = true;
   }
 
   console.log(timezoneData);
 
-  $(timezoneData).hide().prependTo('#content').fadeIn('slow');
+  $(timezoneData).hide().prependTo('.sortable').fadeIn('slow');
+  $('.sortable').sortable();
 }
 
-$(function() {
+$(document).ready(function(){
+
+  setTimezones();
 
   $( "#searchbox" ).autocomplete({
     source: function( request, response ) {
@@ -336,10 +341,8 @@ $(function() {
   	getTimeFor(location);
   });
 
+  $('.sortable').sortable();
+
   var online = navigator.onLine;
-
-
-  setTimezones();
-
-
+  
 });

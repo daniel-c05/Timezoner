@@ -9,13 +9,18 @@
       }
       body {
         margin: 0;
-        padding: 0;  
-        overflow: hidden;
-        width: 100%;
-        height: 100%;      
+        padding: 0;        
       }
       hr {
         margin: 0;
+      }
+      ul, li {
+        list-style: none;  
+        padding: 0;
+        margin: 0;      
+      }
+      .clearfix { 
+        clear: both;
       }
       .timezone {
         padding: 0 8px 8px;
@@ -30,10 +35,12 @@
         padding: 6px 0;
       }
       #header {
-        overflow: hidden;
         position: absolute;  
         width: 100%;
         height: 44px;
+        z-index: 10;
+        top: 0;
+        left: 0;
       }
       #searchbox {
         margin: 0;
@@ -46,38 +53,52 @@
         outline: none;
       }
       #content {
-        overflow: auto;
-        margin: 44px 0;
-        padding: 0;    
+        margin: 44px 0 0;
+        padding: 0;  
+        z-index: 0;
       }
+      .sortable {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      li.sortable-placeholder {
+        border: 1px dashed #CCC;
+        background: none;
+      }        
     </style>    
     <link rel="stylesheet" href="jquery-ui.css">
     <script src="jquery-1.10.2.js"></script>  
     <script src="jquery-ui.js"></script>  
+    <script src="jquery.sortable.min.js"></script>  
     <script src="main.js"></script>  
   </head>
   <body>
-    <header id="header">
+    <div id="header">
       <input id="searchbox" type="text" placeholder="Enter a location">
-      <hr/>
-    </header> 
-    <section id="content">
-      <div class="timezone odd">
+      <hr/>      
+    </div> 
+    <div class="clearfix"></div>
+    <div id="content">
+      <ul class="sortable">
+      <li class="timezone odd">
         <h2>Pacific Time</h2>
         <div><span id="pst">0:00AM</span> || (GMT -7:00)</div>
-      </div>
-      <div class="timezone">
+      </li>
+      <li class="timezone">
         <h2>Mountain Time</h2>
         <div><span id="mst">0:00AM</span> || (GMT -6:00)</div>
-      </div>
-      <div class="timezone odd">
+      </li>
+      <li class="timezone odd">
         <h2>Central Time</h2>
         <div><span id="cst">0:00AM</span> || (GMT -5:00)</div>
-      </div>
-      <div class="timezone">
+      </li>
+      <li class="timezone">
         <h2>Eastern Time</h2>
         <div><span id="est">0:00AM</span> || (GMT -4:00)</div>
-      </div>
-    </section>   
+      </li>      
+      </ul>
+    </div>   
   </body>
 </html>
